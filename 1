@@ -1,0 +1,181 @@
+/*
+Описать класс в соответствии с индивидуальным вариантом задания и реализовать все его
+методы. Каждый класс должен содержать, помимо указанных в варианте методов, конструктор с
+параметрами, конструктор копирования, деструктор, методы ввода с клавиатуры, установки и
+получения значений полей, вывода этих значений на экран. В каждом методе класса, включая
+конструкторы и деструктор, предусмотреть отладочную печать сообщения, содержащего имя
+метода. Написать программу для тестирования всех методов класса, выбор метода должен
+осуществляться с помощью меню.
+
+Класс «Треугольник». Поля: длины двух сторон и величина угла между ними. Методы:
+вычисление периметра, площади, высоты, проведенной из заданного угла, определение типа
+(остроугольный, прямоугольный, тупоугольный), перегрузка операции сравнения на равенство
+«==» двух треугольников.
+*/
+
+
+#define _USE_MATH_DEFINES
+
+#include <iostream>
+#include <cmath>
+#include <cstdio>
+
+
+#include "stdlib.h"
+#include "conio.h"
+#include "windows.h"
+
+
+
+using namespace std;
+
+class triangle
+{
+	double a, b, c;
+	int angle;
+public:
+	void perimeter();
+	void area();
+	void height();
+	void input();
+	void output();
+	void type();
+	triangle(double A = 3, double B = 4, double C = 5, int AA = 90) : a(A), b(B), c(C), angle(AA) { cout << "Значения по умолчанию установлены";}
+    triangle(const triangle &t) :
+        a(t.a), b(t.b),c(t.c),angle(t.angle)
+    {
+        cout << "Копирования успешно произошло" << endl << endl;
+    }
+    ~triangle() { cout << "Деструктор сработал"; }
+    void operator== (triangle &t)
+    {
+        if ((a == t.a && b == t.b && angle == t.angle) || (b == t.a && a == t.b && angle == t.angle)) cout << "Треугольники равны" << endl;
+        else cout << "Треугольники не равны" << endl << endl;
+        system("pause");
+    }
+
+};
+
+int main()
+{
+	setlocale(LC_ALL, "Russian");
+	triangle t;
+	cout << endl << endl;
+	system("pause");
+	int menu;
+	do
+	{
+		system("CLS");
+		cout << "1. Ввести значения сторон и угла между ними" << endl;
+		cout << "2. Вывести значения сторон и угла (в градусах) между ними" << endl;
+		cout << "3. Найти периметр" << endl;
+		cout << "4. Найти площадь" << endl;
+		cout << "5. Найти высоту" << endl;
+		cout << "6. Определить тип треугольника" << endl;
+		cout << "7. Протестировать конструктор копирования" << endl;
+		cout << "8. Сравнить два треугольника" << endl;
+		cout << "9. Выход" << endl;
+		cin >> menu;
+		switch (menu)
+		{
+		case 1: t.input(); break;
+		case 2: t.output(); break;
+		case 3: t.perimeter(); break;
+		case 4: t.area(); break;
+		case 5: t.height(); break;
+		case 6: t.type(); break;
+		case 7:
+		    {
+		        triangle tcopy (t);
+		        system("pause");
+		        tcopy.output();
+            } break;
+            case 8:
+		    {
+		        triangle t2;
+		        cout << " для второго треугольника" << endl;
+		        cout << endl << "Введите значения для второго треугольника :" << endl << endl;
+		        system("pause");
+		        t2.input();
+		        cout << endl;
+		        t == t2;
+            } break;
+		}
+	} while (menu != 9);
+	return 0;
+}
+
+
+void triangle::perimeter()
+{
+	system("CLS");
+	cout << "Метод perimeter : " << endl << endl;
+	cout << "Периметр равен ";
+	cout << a + b + c << endl << endl;
+	system("pause");
+}
+void triangle::area()
+{
+	system("CLS");
+	cout << "Метод area : " << endl << endl;
+	cout << "Площадь равна ";
+	cout << a * b * sin(angle * M_PI / 180) / 2 << endl << endl;
+	system("pause");
+}
+void triangle::height()
+{
+	system("CLS");
+	cout << "Метод height : " << endl << endl;
+	cout << "Высота равна ";
+	cout << a * b * sin(angle * M_PI / 180)/c << endl << endl;
+	system("pause");
+}
+void triangle::input()
+{
+	system("CLS");
+	cout << "Метод input : " << endl << endl;
+	cout << "Введите значение первой стороны" << endl;
+	cin >> a;
+	cout << "Введите значение второй стороны" << endl;
+	cin >> b;
+	cout << "Введите значение угла между сторонами (в градусах)" << endl;
+	cin >> angle;
+	c = sqrt(a * a + b * b - 2 * a * b * cos(angle * M_PI / 180));
+	cout << "Значение третьей стороны равно ";
+	cout << c << endl << endl;
+	system("pause");
+}
+void triangle::output()
+{
+	system("CLS");
+	cout << "Метод output : " << endl << endl;
+	cout << "Значение первой стороны: ";
+	cout << a << endl;
+	cout << "Значение второй стороны: ";
+	cout << b << endl;
+	cout << "Значение третьей стороны: ";
+	cout << c << endl;
+	cout << "Значение угла между первой и второй сторонами (в градусах): ";
+	cout << angle;
+	if (angle % 10 == 1) cout << " градус" << endl << endl;
+	else
+	{
+		if ((angle % 10 == 2) || (angle % 10 == 3) || (angle % 10 == 4)) cout << " градуса" << endl << endl;
+		else cout << " градусов" << endl << endl;
+	}
+	system("pause");
+}
+void triangle::type()
+{
+	system("CLS");
+	cout << "Метод type : " << endl << endl;
+	cout << "Треугольник ";
+	if ((a * a == b * b + c * c) || (b * b == a * a + c * c) || (c * c == b * b + a * a))
+		cout << "прямоугольный" << endl << endl;
+	else
+		if ((a * a > b * b + c * c) || (b * b > a * a + c * c) || (c * c > b * b + a * a))
+			cout << "тупоугольный" << endl << endl;
+		else
+			cout << "остроугольный" << endl << endl;
+	system("pause");
+}

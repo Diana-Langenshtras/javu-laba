@@ -33,13 +33,31 @@ class triangle
 	double a, b, angle;
 public:
 	double getA() { return a; } // геттер для a
-	void setA(double a2) { a = a2; } // сеттер для a
+	bool setA(double a2)// сеттер для a
+	{
+		if (a2 <= 0)
+			return false;
+		a = a2;
+		return true;
+	}
 
 	double getB() { return b; } // геттер для b
-	void setB(double b2) { b = b2; } // сеттер для b
+	bool setB(double b2)// сеттер для b
+	{
+		if (b2 <= 0)
+			return false;
+		b = b2;
+		return true;
+	}
 
 	double getAngle() { return angle; } // геттер для angle
-	void setAngle(double angle2) { angle = angle2; } // сеттер для angle
+	bool setAngle(double angle2)// сеттер для angle
+	{
+		if (angle2 <= 0)
+			return false;
+		angle = angle2;
+		return true;
+	}
 
 
 	/* функция вычисления периметра */
@@ -78,14 +96,14 @@ public:
 		double a1, b1, angle1;
 		system("CLS");
 		cout << "Введите значение первой стороны" << endl;
-		do cin >> a1; while (a1 <= 0);
-		setA(a1);
+		cin >> a1;
+		if (!setA(a1)) cout << "Значение может быть только положительное, будет установлено значение по умолчанию" << endl << endl;
 		cout << "Введите значение второй стороны" << endl;
-		do cin >> b1; while (b1 <= 0);
-		setB(b1);
+		cin >> b1;
+		if (!setB(b1)) cout << "Значение может быть только положительное, будет установлено значение по умолчанию" << endl << endl;
 		cout << "Введите значение угла между сторонами (в градусах)" << endl;
-		do cin >> angle1; while (angle1 <= 0);
-		setAngle(angle1);
+		cin >> angle1;
+		if (!setAngle(angle1)) cout << "Значение может быть только положительное, будет установлено значение по умолчанию" << endl << endl;
 		cout << "Значение третьей стороны равно ";
 		cout << c() << endl;
 		system("pause");

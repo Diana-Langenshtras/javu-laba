@@ -1,0 +1,654 @@
+/*
+Вариант 10
+Дополнительные методы для класса «Строка - идентификатор»: поиск последнего вхождения
+символа в строку, переопределение операции проверки на «больше» « > ».
+Производный от «Строки» класс «Битовая строка».
+Строки данного класса могут содержать только символы '0' или '1'.Если в составе инициали -
+зирующей строки будут встречены любые символы, отличные от допустимых, «Битовая строка»
+принимает нулевое значение.Содержимое данных строк рассматривается как двоичное число.От -
+рицательные числа хранятся в дополнительном коде.
+Обязательные методы : получение информации о знаке числа, переопределение операций вы -
+читания « - »(длина строки результата равна длине большей из строк, в случае необходимости, бо -
+лее короткая битовая строка расширяется влево знаковым разрядом) и проверки на больше « > »
+двух двоичных чисел.*/
+
+#include <iostream>
+#include <math.h>
+using namespace std;
+
+class MyObject//класс для определения, к какому из трёх классов принадлежит указатель
+{
+public:
+	MyObject()
+	{
+	}
+	~MyObject()
+	{
+	}
+	int get_type()
+	{
+		return objectType;
+	}
+protected:
+	int objectType;//тип объекта
+};
+/// Конец MyObject
+
+/// Начало CharString
+class CharString : public MyObject //класс Строка
+{
+protected:
+	char* stringPtr;//указатель на блок динамической памяти
+	int stringLenght;// длина строки
+	static int countCopyConstructor;//количество вызовов конструкторов копирования
+public:
+	CharString() //конструктор без параметров
+	{
+		objectType = 1;
+		stringPtr = 0;
+		stringLenght = 0;
+	}
+	CharString(const CharString& copyStr) //конструктор копирования
+	{
+		objectType = 1;
+		stringPtr = copyStr.stringPtr;
+		stringLenght = copyStr.stringLenght;
+		countCopyConstructor++;
+		cout << "Количество вызовов конструктора копирования: " << countCopyConstructor << endl;
+	}
+	CharString(const char* charStringPtr) //конструктор, принимающий Си-строку
+	{
+		objectType = 1;
+		stringLenght = strlen(charStringPtr);
+		stringPtr = new char[stringLenght + 1];
+		for (int i = 0; i < stringLenght; i++)
+		{
+			stringPtr[i] = charStringPtr[i];
+		}
+		stringPtr[stringLenght] = '\0';
+	}
+	CharString(char symbol) //конструктор, принимающий 1 символ Си-строки 
+	{
+		objectType = 1;
+		stringLenght = 2;//длина строки = 2, один под символ и вторая под конец строки \0
+		stringPtr = new char[stringLenght];
+		stringPtr[0] = symbol;
+		stringPtr[1] = '\0';
+	}
+	~CharString() //деструктор
+	{
+		cout << "\t\t\tВызван деструктор класса IdString" << endl;
+		stringPtr = nullptr;
+		stringLenght = NULL;
+	}
+	friend ostream& operator<< (ostream& out, const CharString& str);
+	CharString& operator=(const CharString& str)//перегрузка оператора присваивания
+	{
+		stringPtr = str.stringPtr;
+		stringLenght = str.stringLenght;
+		return *this;//возвращение указателя на текущий объект
+
+	}
+	int getCharStringLenght() //геттер для длины
+	{
+		return stringLenght;
+	}
+};
+ostream& operator<< (ostream& out, const CharString& str) //перегрузка оператора поточного вывода
+{
+	//посимвольное считывание строки
+	out << "Вывод строки: ";
+	for (int i = 0; i < str.stringLenght; i++)
+	{
+		out << str.stringPtr[i];
+	}
+	out << "\nДлина строки: " << str.stringLenght << endl;
+	return cout;
+}
+/// Конец CharString 
+
+/// Начало BitString
+class BitString : public CharString //класс битовая строка
+{
+public:
+	BitString() //устанавливаем тип класса
+	{
+		objectType = 3;
+	}
+	~BitString() //деструктор
+	{ 
+		cout << "\t\t\tВызван деструктор класса IdString" << endl;
+		stringPtr = nullptr;
+		stringLenght = NULL;
+	}
+	BitString(const BitString& copyIdStr) : CharString(copyIdStr) //конструктор копирования
+	{
+		objectType = 3;
+	}
+	BitString(const char* charBittStringPtr) : CharString(charBittStringPtr) //конструктор, принимающий Си-строку
+	{
+		objectType = 3;
+		if (!checkString_Bit(charBittStringPtr))
+		{
+			stringLenght = 0;
+			stringPtr = 0;
+		}
+	}
+	BitString(char symbolBitString) : CharString(symbolBitString) //конструктор, принимающий 1 символ Си-строки
+	{
+		objectType = 3;
+	}
+	int StrToInt()
+	{
+		int ipos = stringLenght, Res = 0;
+		for (int i = 0; i < stringLenght; i++)
+		{
+			if (stringPtr[i] == 'i')
+				ipos = i;
+		}
+		for (int i = 0; i < ipos; i++)
+		{
+			if (stringPtr[i] >= '0' && stringPtr[i] <= '9')
+			{
+				stringPtr[i] -= 48;
+				Res += stringPtr[i] * pow(10, ipos - i - 1);
+			}
+		}
+		if (stringPtr[0] == '-')
+			Res *= -1;
+		return Res;
+	}
+	int StrToIntI()
+	{
+		int ipos = stringLenght, Res = 0;
+		for (int i = 1; i < stringLenght; i++)
+		{
+			if (stringPtr[i] == 'i')
+				ipos = i;
+		}
+		for (int i = ipos; i < stringLenght; i++)
+		{
+			if (stringPtr[i] >= '0' && stringPtr[i] <= '9')
+			{
+				stringPtr[i] -= 48;
+				Res += stringPtr[i] * pow(10, stringLenght - i - 1);
+			}
+		}
+		if (stringPtr[ipos + 1] == '-')
+			Res *= -1;
+		return Res;
+	}
+	bool CheckSign() 
+	{
+		if (this->stringPtr[0] == '1')
+			return false;
+		else
+		{
+			return true;
+		}
+	}
+	bool operator> (BitString secondBitStr) //перегрузка оператора сравнения >  
+	{
+		if ((this->stringPtr[0]) > (secondBitStr.stringPtr[0]))
+		{
+			return false;
+		}
+		if ((this->stringPtr[0]) < (secondBitStr.stringPtr[0]))
+		{
+			return true;
+		}
+		if (((this->stringPtr[0]) == (secondBitStr.stringPtr[0])) && (this->stringPtr[0] == '1'))
+		{
+			if ((this->stringLenght) > secondBitStr.stringLenght)
+			{
+				return false;
+			}
+			if ((this->stringLenght) < secondBitStr.stringLenght)
+			{
+				return true;
+			}
+		}
+		if (((this->stringPtr[0]) == (secondBitStr.stringPtr[0])) && (this->stringPtr[0] == '0'))
+		{
+			if ((this->stringLenght) < secondBitStr.stringLenght)
+			{
+				return false;
+			}
+			if ((this->stringLenght) > secondBitStr.stringLenght)
+			{
+				return true;
+			}
+		}
+
+		if (((this->stringPtr[0]) == (secondBitStr.stringPtr[0])) && ((this->stringLenght) == (secondBitStr.stringLenght)))
+			for (int i = 0; i < (secondBitStr.stringLenght); i++) {
+
+				if (this->stringPtr[i] > secondBitStr.stringPtr[i])
+					return true;
+				if (this->stringPtr[i] < secondBitStr.stringPtr[i])
+					return false;
+			}
+	}
+	BitString operator- (BitString& secondBitStr)//перегрузка оператора вычитания
+	{
+		BitString result_temp_bit_string;//использование конструктора копирования для получения значений
+		char* end;
+		int a = 1;
+		if (this->stringPtr[0] == '1') {
+			this->stringPtr[0] = '0';
+			a = -1;
+		}
+		long fullNamber = strtol(this->stringPtr, &end, 2);
+		fullNamber = fullNamber * a;
+
+		int b = 1;
+		if (secondBitStr.stringPtr[0] == '1') {
+			secondBitStr.stringPtr[0] = '0';
+			b = -1;
+		}
+		long fullNamber2 = strtol(secondBitStr.stringPtr, &end, 2);
+		fullNamber2 = fullNamber2 * b;
+
+		if ((fullNamber - fullNamber2) < 0)
+			a = -1;
+		else a = 1;
+
+
+		int bin = 0, j;
+		int c = (a * (fullNamber - fullNamber2));
+		for (j = 0; c > 0; j++)
+		{
+			bin += (c % 2) * pow(10.0, j);
+			c /= 2;
+		}
+
+		int temp = bin, count = 0;
+		while (temp)
+		{
+			count++;
+			temp /= 10;
+
+		}
+		result_temp_bit_string.stringPtr = new char[count + 1];
+		if (a == -1)
+			result_temp_bit_string.stringPtr[0] = '1';
+		else result_temp_bit_string.stringPtr[0] = '0';
+		int i = count;
+		while (bin)
+		{
+			result_temp_bit_string.stringPtr[i] = (bin % 10) + 48;
+			bin /= 10;
+			i--;
+		}
+		result_temp_bit_string.stringLenght = count + 1;
+		for (int j = 0; j < result_temp_bit_string.stringLenght; j++)
+			cout << result_temp_bit_string.stringPtr[j];
+
+		//cout << (fullNamber - fullNamber2) << endl;
+
+		return result_temp_bit_string;//возвращаем третий объект класса - результат, который переводится обратно в строку
+	}
+private:
+	bool checkString_Bit(const char* stringPtr) //проверка строки на соответствие Bit-формату
+	{
+		for (int j = 0; j < stringLenght; j++)
+		{
+			if (!(stringPtr[j] >= '0' && stringPtr[j] <= '1'))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+};
+/// Конец BitString
+
+/// Начало IdString
+class IdString : public CharString //класс строка-идентификатор
+{
+private:
+	bool checkIdStringForCorrectSymbol(const char* stringPtr) //проверка строки на соответствие идентификатору
+	{
+
+		if (stringPtr[0] == '_' || (stringPtr[0] >= 'a' && stringPtr[0] <=
+			'z'))//первый символ идентификатора должен состоять из "_" или строчкой буквы
+		{
+			for (int i = 1; i < stringLenght; i++) {
+				if (!(stringPtr[i] >= 'A' && (stringPtr[i] <= 'Z' || stringPtr[i] >= 'a') && stringPtr[i] <= 'z' &&
+					stringPtr[0] == 95 && (
+						stringPtr[i] >= '0' &&
+						stringPtr[i] <= '9')))//остальные буквы - заглавные и строчные буквы "_", цифры
+				{
+					break;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+public:
+	IdString() : CharString() //наследование конструкторов других классов
+	{
+		objectType = 2;
+	}
+
+	IdString(const IdString& copyIdStr) : CharString(copyIdStr) //конструктор копирования
+	{
+		objectType = 2;
+	}
+
+	IdString(const char* charIdStringPtr) : CharString(charIdStringPtr) //конструктор, принимающий Си-строку
+	{
+		objectType = 2;
+		if (!checkIdStringForCorrectSymbol(charIdStringPtr)) {
+			stringLenght = 0;
+			stringPtr = 0;
+		}
+	}
+
+	IdString(char symbolIdString) : CharString(symbolIdString) //конструктор, принимающий 1 символ Си-строки
+	{
+		objectType = 2;
+	}
+
+	~IdString()
+	{
+		cout << "\t\t\tВызван деструктор класса IdString" << endl;
+		stringPtr = nullptr;
+		stringLenght = NULL;
+	}
+	
+	int lastOccurrence(char find) //: поиск последнего вхождения символа в строку
+	{
+		int lastJ = -1;
+		for (int j = stringLenght - 1; j >= 0; j--) {
+			if (stringPtr[j] == find) {
+				lastJ = j + 1;
+				break;
+			}
+		}
+		return lastJ;
+	}
+
+	IdString operator>(const IdString& secondIdStr) 
+	{
+		if (this->stringLenght > secondIdStr.stringLenght) {
+			return (*this);
+		}
+		else
+		{
+			return secondIdStr;
+		}
+	}
+
+	IdString operator<(const IdString& secondIdStr) 
+	{
+		if (this->stringLenght < secondIdStr.stringLenght) {
+			return (*this);
+		}
+		else
+		{
+			return secondIdStr;
+		}
+	}
+
+	IdString operator-(const IdString& secondIdStr)//перегрузка оператора вычитания
+	{
+		IdString resultIdStr;
+		char* bufferString = new char[stringLenght];
+		int sumStringLenght = 0;
+		for (int i = 0, k = 0, p = 0; i < stringLenght; i++) {
+			for (int j = 0; j < secondIdStr.stringLenght; j++) {
+				if (stringPtr[i] == secondIdStr.stringPtr[j])
+					k++;
+			}
+			if (!k) {
+				bufferString[p] = stringPtr[i];
+				p++;
+				sumStringLenght++;
+			}
+			k = 0;
+		}
+
+		resultIdStr.stringLenght = sumStringLenght;
+		resultIdStr.stringPtr = bufferString;
+		return resultIdStr;//присваивание длинны строки и указатель на новую строку объекту результата и возврат этого объекта
+	}
+};
+/// Конец IdString
+
+int CharString::countCopyConstructor = 0; //определение статического счётчика
+
+int main()
+{
+	setlocale(LC_ALL, "Russian");
+	char menuSelector, classObjectSelector, inputStringToClass[255], classMethodSelector;
+	int countOfArrayPointers = 0, countOfObject = 0, currentObjectNumber = 0;
+	CharString** charStringPtrArray = nullptr;
+	CharString tempCharStr;
+
+	while (countOfArrayPointers <= 0)
+	{
+		cout << "Введите число указателей на класс CharString" << endl;
+		cin >> countOfArrayPointers;
+
+	}
+	charStringPtrArray = new CharString * [countOfArrayPointers];//динамическое создание массива указателей
+
+	while (countOfObject < countOfArrayPointers)//вводим все значения в массив
+	{
+		cout << "Выберите создаваемый объекта класса из списка: " << endl;
+		cout << "1. CharString" << endl;
+		cout << "2. IdString" << endl;
+		cout << "3. BitString" << endl;
+		cin >> classObjectSelector;
+		cout << "Введите значение строки:" << endl;
+		cin >> inputStringToClass;
+		switch (classObjectSelector)//в зависимости от пункта меню  создаём новый объект класса
+		{
+		case '1':
+		{
+			charStringPtrArray[countOfObject] = new CharString(inputStringToClass);//динамическое создание объектов класса
+			break;
+		}
+		case '2':
+		{
+			charStringPtrArray[countOfObject] = new IdString(inputStringToClass);
+			break;
+		}
+		case '3':
+		{
+			charStringPtrArray[countOfObject] = new BitString(inputStringToClass);
+			break;
+		}
+		default:
+			cout << "Введенный объект класса отсутствует в списке. Повторите попытку" << endl;
+			break;
+		}
+		countOfObject++;
+	}
+	do
+	{
+		system("cls");
+		cout << "Число элементов в массиве указателей на базовый класс:" << countOfArrayPointers << endl;
+		cout << "Текущий указатель на объект класса: " << currentObjectNumber << endl;
+		cout << "Выберите пункт меню из перечисленных:" << endl;
+		cout << "1. Перейти к предыдущему указателю <--" << endl;
+		cout << "2. Перейти к следующему указателю -->" << endl;
+		cout << "3. Тестирование текущего объекта класса" << endl;
+		cout << "q. Выход" << endl;
+		cin >> menuSelector;
+		switch (menuSelector)
+		{
+		case '1':
+		{
+			currentObjectNumber--;
+			if (currentObjectNumber < 0)
+			{
+				currentObjectNumber = countOfArrayPointers - 1; //если мы выходим за рамки массива, присваиваем последнее значение, дабы не выйти за рамки массива
+			}
+
+			break;
+		}
+		case '2': // если мы выходим за рамки массива, присваиваем 0, дабы не выйти за рамки массива.
+		{
+			currentObjectNumber++;
+			if (currentObjectNumber >= countOfArrayPointers)
+			{
+				currentObjectNumber = 0;
+			}
+			break;
+		}
+		case '3':
+			system("cls");
+			switch (charStringPtrArray[currentObjectNumber]->get_type()) //определяем тип объекта и демонстрируем методы класса 
+			{
+			case 1:
+			{
+				cout << "Демонстрация методов класса CharString:" << endl;
+				CharString* charStr = charStringPtrArray[currentObjectNumber];
+				cout << *charStr << endl;
+				do
+				{
+					cout << "1. Задать новое значение для CharString " << endl;
+					cout << "q. Выйти" << endl;
+					cin >> classMethodSelector;
+					switch (classMethodSelector)
+					{
+					case '1':
+						cout << "Введите новое значение строки:" << endl;
+						cin >> inputStringToClass;
+						*charStr = inputStringToClass;
+						break;
+					case 'q':
+						break;
+					default:
+						cout << "Данный пункт меню отсутствует в списке, повторите попытку" << endl;
+						break;
+					}
+				} while (classMethodSelector != 'q');
+				break;
+			}
+			case 2: {
+				do {
+					system("cls");
+					cout << "Демонстрация методов класса <<Строка-Идентефикатор>>" << endl;
+					IdString* idString = static_cast<IdString*>(charStringPtrArray[currentObjectNumber]);//приводим указатель на базовый класс к классу IdString
+					cout << *idString << endl;
+					cout << "1. Задать новое значение для <<Строка-Идентефикатор> " << endl;
+					cout << "2. Поиск последнего вхождения символа в строку" << endl;
+					cout << "3. Сравнение строк операции '>'" << endl;
+					cout << "q. Выйти" << endl;
+					cin >> classMethodSelector;
+					switch (classMethodSelector) {
+					case '1': {
+						cout << "Введите новое значение строки:" << endl;
+						cin >> inputStringToClass;
+						*idString = inputStringToClass;
+						break;
+					}
+					case '2': {
+						char find;
+						cout << "Введите символ для поиска последнего вхождения: " << endl;
+						cin >> find;
+						cout << "Последнее вхождение символа " << find << " было на позиции " << idString->lastOccurrence(find) << endl;
+						getchar();
+						getchar();
+						break;
+					}
+					case '3': {
+						cout << "Введите строку для Сравнения" << endl;
+						cin >> inputStringToClass;
+						IdString idTempString(inputStringToClass);
+						IdString idStringCopy(*idString);
+						*idString = idTempString > idStringCopy;
+					}
+					case 'q':
+						break;
+					default:
+						cout << "Данный пункт меню отсутствует в списке, повторите попытку" << endl;
+						break;
+					}
+				} while (classMethodSelector != 'q');
+				break;
+			}
+			case 3:
+			{
+				do
+				{
+					system("cls");
+					cout << "Демонстрация методов класса BitString" << endl;
+					BitString* BitStr = static_cast<BitString*>(charStringPtrArray[currentObjectNumber]);//приводим указатель на базовый класс к классу BitString
+					cout << *BitStr << endl;
+					cout << "1. Задать новое значение для BitString " << endl;
+					cout << "2. Получение информации о знаке числа" << endl;
+					cout << "3. Вычитание двоичных чисел" << endl;
+					cout << "4. Сравнение на > двух двоичных чисел" << endl;
+					cout << "q. Выйти" << endl;
+					cin >> classMethodSelector;
+					switch (classMethodSelector)
+					{
+					case '1':
+					{
+						cout << "Введите новое значение строки:" << endl;
+						cin >> inputStringToClass;
+						*BitStr = inputStringToClass;
+						break;
+					}
+					case '2':
+					{
+
+						cout << "Получение информации о знаке числа: " << endl;
+						if ((*BitStr).CheckSign())
+							cout << "Значение строки положительное" << endl;
+						else cout << "Значение строки отрицательное" << endl;
+						getchar(); getchar();
+						break;
+					}
+					case '3':
+					{
+						cout << "Введите строку в двоичном формате для вычитания из заданной" << endl;
+						cin >> inputStringToClass;
+						BitString BitTempString(inputStringToClass);
+						BitString BitString(*BitStr);
+						*BitStr = BitString - BitTempString;
+						getchar(); getchar();
+						break;
+					}
+					case '4':
+					{
+						cout << "Введите строку в битовом формате для сравнения с заданной: " << endl;
+						cin >> inputStringToClass;
+						BitString BitTempString(inputStringToClass);
+						BitString BitString(*BitStr);
+						if (BitString > BitTempString)
+							cout << "Начальная строка больше" << endl;
+						else cout << "Вторая строка больше" << endl;
+						getchar(); getchar();
+					}
+					case 'q':
+						break;
+					default:
+						cout << "Данный пункт меню отсутствует в списке, повторите попытку" << endl;
+						break;
+					}
+				} while (classMethodSelector != 'q');
+				break;
+			}
+			default: {
+				break;
+			}
+
+			}
+		case 'q':
+			break;
+		default:
+			cout << "Данный пункт меню отсутствует в списке, повторите попытку" << endl;
+			break;
+		}
+		system("pause");
+	} while (menuSelector != 'q');
+	//автоматически определять, что перед нами за объект класса
+	return 0;
+}

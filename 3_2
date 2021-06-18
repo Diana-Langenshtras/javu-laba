@@ -1,0 +1,118 @@
+#include <iostream>
+
+using namespace std;
+
+template <typename T>
+class Stack
+{
+private:
+	int top;
+	T* data;
+	int maxlength;
+public:
+	Stack(int n = 100); //максимальное число элементов
+	~Stack();
+	int Empty(void); //проверка на пустоту
+	T Top(void); //неразрушающее чтение
+	T Pop(void); //извлечь из стека
+	int Push(T x); //поместить в стек
+	int full(void);// метод full
+};
+
+int main(int argc, char* argv[])
+{
+	setlocale(LC_ALL, "Russian");
+	int length;
+	char selector;
+	cout << "Введите размер стека:" << endl;
+	cin >> length;
+	cout << "Выберите тип данных для стека: " << endl;
+	cout << "1. Стек для double" << endl;
+	cout << "2. Стек для char" << endl;
+	cin >> selector;
+	double inputDouble;
+	char inputChar;
+	switch (selector)
+	{
+	case '1':
+	{
+		Stack<double> meme_doubleStack;
+		for (int i = 0; i < length; i++) {
+			cout << "Добавление элемента с индексом " << i << " :";
+			cin >> inputDouble;
+			meme_doubleStack.Push(inputDouble);
+		}
+		for (int i = 0; i < length; i++) {
+			cout << "Верхний элемент стека: " << meme_doubleStack.Top() << endl;
+			cout << "Удаляем верхний элемент " << endl;
+			meme_doubleStack.Pop();
+			if (meme_doubleStack.Empty()) cout << "Стек пуст" << endl;
+		}
+		break;
+	}
+	case '2':
+	{
+		Stack<char> meme_charStack;
+		for (int i = 0; i < length; i++) {
+			cout << "Добавление элемента с индексом " << i << " :";
+			cin >> inputChar;
+			meme_charStack.Push(inputChar);
+		}
+		for (int i = 0; i < length; i++) {
+			cout << "Верхний элемент стека: " << meme_charStack.Top() << endl;
+			cout << "Удаляем верхний элемент " << endl;
+			meme_charStack.Pop();
+			if (meme_charStack.Empty()) cout << "Стек пуст" << endl;
+		}
+		break;
+	}
+	}
+	system("pause");
+	return 0;
+}
+
+template <typename T>
+int Stack<T>::full() 
+{
+	if (top == maxlength - 1) return 0;
+	return 1;
+}
+
+template <typename T>
+Stack<T>::Stack(int n) : maxlength(n)
+{
+	data = new T[maxlength];
+	top = -1;
+}
+
+template <typename T>
+Stack<T>::~Stack()
+{
+	delete[] data;
+}
+
+template <typename T>
+int Stack<T>::Empty()
+{
+	return top < 0;
+}
+
+template <typename T>
+T Stack<T>::Top()
+{
+	return data[top];
+}
+
+template <typename T>
+T Stack<T>::Pop()
+{
+	return data[top--];
+}
+
+template <typename T>
+int Stack<T>::Push(T x)
+{
+	if (top == maxlength - 1) return 0;
+	data[++top] = x; 
+	return 1;
+}

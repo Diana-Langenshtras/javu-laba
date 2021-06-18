@@ -1,0 +1,138 @@
+#include <iostream>
+#include <conio.h>
+#include <vector>
+#include <list>
+using namespace std;
+//базовый класс
+template <class Type>
+class Steck
+{
+public:
+	virtual bool isEmpty() = 0; //проверка
+	virtual void push(Type value) = 0; //добавление
+	virtual Type pop() = 0; //извлечение
+};
+//вектор
+template <class Type>
+class VectorSteck : public Steck<Type>
+{
+	vector<Type> data;
+public:
+	virtual bool isEmpty()
+	{
+		return data.empty();
+	}; //проверка
+	virtual void push(Type value)
+	{
+		data.push_back(value);
+	}; //добавление
+	virtual Type pop()
+	{
+		Type buff = data.back();
+		data.pop_back();
+		return buff;
+	}; //извлечение
+};
+//список
+template <class Type>
+class ListSteck : public Steck<Type>
+{
+	list<Type> data;
+public:
+	virtual bool isEmpty()
+	{
+		return data.empty();
+	}; //проверка
+	virtual void push(Type value)
+	{
+		data.push_back(value);
+	}; //добавление
+	virtual Type pop()
+	{
+		Type buff = data.back();
+		data.pop_back();
+		return buff;
+	}; //извлечение
+};
+template <class Type> void print_steck(Steck<Type>* point);
+double _getnum();
+int main()
+{
+	system("chcp 65001 & cls");
+	int action = 0;
+	char _num;
+	while (action != 1 && action != 2)
+	{
+		system("cls");
+		cout << "Выберите структуру хранения:\n"
+			"1.Вектор.\n"
+			"2.Список.\n";
+		action = _getnum();
+	}
+	Steck<double>* _dsteck;
+	Steck<char>* _chsteck;
+	if (action == 1)
+	{
+		_dsteck = new VectorSteck<double>; _chsteck = new
+			VectorSteck<char>;
+	}
+	else
+	{
+		_dsteck = new ListSteck<double>;
+		_chsteck = new ListSteck<char>;
+	}
+	while (action)
+	{
+		system("cls");
+		cout << "<Тип double>\n";
+		print_steck(_dsteck);
+		cout << "1. Добавить элемент.\n"
+			"2. Удалить элемент.\n\n";
+		print_steck(_chsteck);
+		cout << "<Тип char>\n"
+			"3. Добавить элемент.\n"
+			"4. Удалить элемент.\n\n\n"
+			"0. Выход.\n";
+		action = _getnum();
+		switch (action)
+		{
+		case 1: _dsteck->push(_getnum()); break;
+		case 2: if (_dsteck->isEmpty()) {
+			cout << "Стек пуск.\n";
+			break;
+		} _dsteck->pop(); break;
+		case 3: cin >> _num; _chsteck->push(_num); break;
+		case 4: if (_chsteck->isEmpty()) {
+			cout << "Стек пуст.\n";
+			break;
+		} _chsteck->pop(); break;
+		}
+		system("pause");
+	}
+	return 0;
+}
+template <class Type> void print_steck(Steck<Type>* point)
+{
+	ListSteck<Type> temp;
+	Type buff;
+	while (!point->isEmpty())
+	{
+		buff = point->pop();
+		cout << buff << " ";
+		temp.push(buff);
+	}
+	cout << "\n";
+	while (!temp.isEmpty()) { point->push(temp.pop()); }
+}
+double _getnum()
+{
+	double value;
+	cin >> value;
+	if (cin.fail())
+	{
+		cin.clear();
+		value = 0;
+	}
+	cin.ignore(32767, '\n');
+	return value;
+}

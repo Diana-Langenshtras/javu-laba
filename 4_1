@@ -1,0 +1,84 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <array>
+#define N 10
+using namespace std;
+template <class Type> void print_array(array<Type, N>& arr)
+{
+	for (int i = 0; i < arr.size(); i++)
+	{
+		std::cout << (double)arr[i] << '\t';
+	}
+	std::cout << '\n';
+}
+template <class Type> void generate_array(array <Type, N>& arr)
+{
+	for (int i = 0; i < arr.size(); i++)
+	{
+		arr[i] = rand() % 20000 / 100.0 - 100;
+	}
+}
+template <class Type> void Shift(array <Type, N>& el)
+{
+	int i, flag = 0, counter = 0, indSort;
+	Type forSort;
+	for (; counter < el.size(); counter++)
+	{
+		flag = 0;
+		for (i = counter; i < el.size(); i++) //находим первое отрицательное
+		{
+			if (el[i] < 0)
+			{
+				forSort = el[i];
+				indSort = i;
+				flag = 1;
+				break;
+			}
+		} if (!flag) break;
+		for (i = indSort + 1; i < el.size(); i++)
+		{
+			if (el[i] < 0 && el[i] > forSort)
+			{
+				indSort = i;
+				forSort = el[i];
+			}
+		}
+		el[indSort] = el[counter];
+		el[counter] = forSort;
+	}
+	for (; counter < el.size(); counter++)
+	{
+		forSort = el[counter];
+		indSort = counter;
+		for (i = counter + 1; i < el.size(); i++)
+		{
+			if (el[i] < forSort)
+			{
+				indSort = i;
+				forSort = el[i];
+			}
+		}
+		el[indSort] = el[counter];
+		el[counter] = forSort;
+	}
+}
+int main()
+{
+	system("chcp 65001 & cls");
+	srand(time(0));
+	array<double, N> first;
+	array<char, N> second;
+	generate_array(first);
+	generate_array(second);
+	cout << "Исходный массив double:\n";
+	print_array(first); cout << '\n';
+	Shift(first);
+	cout << "Отсортированный массив double:\n";
+	print_array(first); cout << '\n';
+	cout << "Исходный массив char:\n";
+	print_array(second); cout << '\n';
+	Shift(second);
+	cout << "Отсортированный массив char:\n";
+	print_array(second); cout << '\n';
+}

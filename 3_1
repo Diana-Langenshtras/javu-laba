@@ -1,0 +1,111 @@
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+
+using namespace std;
+
+template < typename T > //шаблон функции
+void sort(T& mas, size_t length)
+{
+	double temp;
+	for (int i = 0; i < length; i++)
+		for (int j = length - 1; j > i; j--)
+			if (((mas[j - 1] >= 0) && (mas[j] >= 0) && (mas[j - 1] > mas[j])) || // Два положительных => сортируем по возрастанию
+				((mas[j - 1] < 0) && (mas[j] < 0) && (mas[j - 1] < mas[j])) ||
+				((mas[j - 1] * mas[j] <= 0) && (mas[j - 1] > mas[j])))
+			{
+				temp = mas[j - 1];
+				mas[j - 1] = mas[j];
+				mas[j] = temp;
+			}
+	cout << "Сортировка массива окончена" << endl;
+	system("pause");
+}
+
+void vvodchar(char* mas, size_t length)
+{
+	system("cls");
+	int tmp = 0;
+	for (size_t i = 0; i < length; i++)
+	{
+		cout << "Элемент [" << i << "]: ";
+		cin >> tmp;
+		*(mas + i) = tmp;
+	}
+	cout << endl;
+	cin.clear();
+	while (cin.get() != '\n');
+}
+
+void vvoddouble(double* mas, size_t length)
+{
+	system("cls");
+	for (size_t i = 0; i < length; i++)
+	{
+		cout << "Элемент [" << i << "]: ";
+		cin >> *(mas + i);
+	}
+	cout << endl;
+	cin.clear();
+	while (cin.get() != '\n');
+
+}
+
+void vyvodchar(char* mas, size_t length)
+{
+	system("cls");
+	for (size_t i = 0; i < length; i++)
+	{
+		cout << (int)*(mas + i) << " ";
+	}
+	cout << endl;
+	system("pause");
+}
+
+void vyvoddouble(double* mas, size_t length)
+{
+	system("cls");
+	for (size_t i = 0; i < length; i++)
+	{
+		cout << *(mas + i) << " ";
+	}
+	cout << endl;
+	system("pause");
+}
+
+int main()
+{
+	setlocale(LC_ALL, "Russian");
+	int length;
+	double* a;
+	char* c;
+	cout << "Введите кол-во элементов массива" << endl;
+	cin >> length;
+	a = new double[length];
+	c = new char[length];
+	char menu;
+	do {
+		system("cls");
+		cout << "1. Ввод\n";
+		cout << "2. Вывод\n";
+		cout << "3. Сортировка\n";
+		cout << "0. Выход\n";
+		menu = getchar();
+		switch (menu)
+		{
+		case '1':
+		{
+			vvoddouble(a, length);
+			cout << "Следующий массив char" << endl;
+			vvodchar(c, length);
+			break;
+		}
+		case '2': vyvoddouble(a, length); vyvodchar(c, length); break;
+		case '3': sort(a, length); sort(c, length); break;
+		}
+	} while (menu != '0');
+	delete[] a;
+	delete[] c;
+	system("pause");
+	return 0;
+}

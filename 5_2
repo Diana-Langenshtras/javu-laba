@@ -1,0 +1,347 @@
+#include <SDL.h>
+#include <SDL_image.h>
+#include <stdio.h>
+#include <string>
+
+//Размеры экрана
+const int SCREEN_WIDTH = 640;
+const int SCREEN_HEIGHT = 400;
+
+using namespace std;
+
+//Класс-оболочка текстуры
+class LTexture
+{
+public:
+	//Инициализирует переменные
+	LTexture();
+	//Освобождает память
+	~LTexture();
+	//Загружает изображение по указанному пути
+	bool loadFromFile(string path);
+	//Освобождает текстуру
+	void free();
+	//Установить модуляцию цвета
+	void setColor(Uint8 red, Uint8 green, Uint8 blue);
+	//Установить смешивание
+	void setBlendMode(SDL_BlendMode blending);
+	//Установить альфа-модуляцию
+	void setAlpha(Uint8 alpha);
+	//Визуализирует текстуру в заданной точке
+	void render(int x, int y, SDL_Rect* clip = NULL);
+	//геттеры для размеров изображения
+	int getWidth();
+	int getHeight();
+
+private:
+	//указатель на структуру
+	SDL_Texture* mTexture;
+	//Размеры изображения
+	int mWidth;
+	int mHeight;
+};
+
+//Запускает SDL и создает окно
+bool init();
+
+//Загружает картинку
+bool loadMedia();
+
+//Освобождает картинку и закрывает SDL
+void close();
+
+//Окно, в которое мы будем рендерить
+SDL_Window* gWindow = NULL;
+
+//Средство визуализации окон
+SDL_Renderer* gRenderer = NULL;
+
+//Движущаяся анимация
+const int WALKING_ANIMATION_FRAMES = 4;
+SDL_Rect gSpriteClips[WALKING_ANIMATION_FRAMES];
+LTexture gSpriteSheetTexture;
+
+//сеттер
+LTexture::LTexture()
+{
+	mTexture = NULL;
+	mWidth = 0;
+	mHeight = 0;
+}
+
+//деструктор
+LTexture::~LTexture()
+{
+	free();
+}
+
+bool LTexture::loadFromFile(string path)
+{
+	//Избавьтесь от ранее существовавшей текстуры
+	free();
+
+	//финальное изображение
+	SDL_Texture* newTexture = NULL;
+
+	//Загрузить изображение по указанному пути
+	SDL_Surface* loadedSurface = IMG_Load(path.c_str());
+	if (loadedSurface == NULL)
+	{
+		printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
+	}
+	else
+	{
+		//устанавливаем прозрачный цвет
+		SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0, 0xFF, 0xFF));
+
+		//Создание текстуры из пикселей поверхности
+		newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
+		if (newTexture == NULL)
+		{
+			printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
+		}
+		else
+		{
+			//получаем размеры изображения
+			mWidth = loadedSurface->w;
+			mHeight = loadedSurface->h;
+		}
+
+		//освобождаем поверхность с изначальной картинкой
+		SDL_FreeSurface(loadedSurface);
+	}
+
+	//в случае успеха
+	mTexture = newTexture;
+	return mTexture != NULL;
+}
+
+void LTexture::free()
+{
+	//Free texture if it exists
+	if (mTexture != NULL)
+	{
+		SDL_DestroyTexture(mTexture);
+		mTexture = NULL;
+		mWidth = 0;
+		mHeight = 0;
+	}
+}
+
+void LTexture::setColor(Uint8 red, Uint8 green, Uint8 blue)
+{
+	//Модуляция текстуры rgb
+	SDL_SetTextureColorMod(mTexture, red, green, blue);
+}
+
+void LTexture::setBlendMode(SDL_BlendMode blending)
+{
+	//Установить функцию смешивания
+	SDL_SetTextureBlendMode(mTexture, blending);
+}
+
+void LTexture::setAlpha(Uint8 alpha)
+{
+	//Модуляция текстуры альфа
+	SDL_SetTextureAlphaMod(mTexture, alpha);
+}
+
+void LTexture::render(int x, int y, SDL_Rect* clip)
+{
+	//Установить пространство рендеринга и рендерить на экран
+	SDL_Rect renderQuad = { x, y, mWidth, mHeight };
+
+	//Установить размеры рендеринга клипа
+	if (clip != NULL)
+	{
+		renderQuad.w = clip->w;
+		renderQuad.h = clip->h;
+	}
+
+	//Рендеринг на экран
+	SDL_RenderCopy(gRenderer, mTexture, clip, &renderQuad);
+}
+
+int LTexture::getWidth()
+{
+	return mWidth;
+}
+
+int LTexture::getHeight()
+{
+	return mHeight;
+}
+
+bool init()
+{
+	//флаг
+	bool success = true;
+
+	//запустился ли sdl
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	{
+		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+		success = false;
+	}
+	else
+	{
+		//Установите линейную фильтрацию текстур
+		if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
+		{
+			printf("Warning: Linear texture filtering not enabled!");
+		}
+
+		//создаем окно
+		gWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+		if (gWindow == NULL)
+		{
+			printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
+			success = false;
+		}
+		else
+		{
+			//рендер для окна
+			gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+			if (gRenderer == NULL)
+			{
+				printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
+				success = false;
+			}
+			else
+			{
+				//устанавливаем цвет рисования
+				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+
+				//загрузка картинки
+				int imgFlags = IMG_INIT_PNG;
+				if (!(IMG_Init(imgFlags) & imgFlags))
+				{
+					printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+					success = false;
+				}
+			}
+		}
+	}
+
+	return success;
+}
+
+bool loadMedia()
+{
+	//флаг удачной загрузки
+	bool success = true;
+
+	//загружаем лист спрайтов
+	if (!gSpriteSheetTexture.loadFromFile("1/1.png"))
+	{
+		printf("Failed to load walking animation texture!\n");
+		success = false;
+	}
+	else
+	{
+		//режем лист спрайтов
+		gSpriteClips[0].x = 0;
+		gSpriteClips[0].y = 0;
+		gSpriteClips[0].w = 480.5;
+		gSpriteClips[0].h = 282;
+
+		gSpriteClips[1].x = 480.5;
+		gSpriteClips[1].y = 0;
+		gSpriteClips[1].w = 480.5;
+		gSpriteClips[1].h = 282;
+
+		gSpriteClips[2].x = 961;
+		gSpriteClips[2].y = 0;
+		gSpriteClips[2].w = 480.5;
+		gSpriteClips[2].h = 282;
+
+		gSpriteClips[3].x = 1441,5;
+		gSpriteClips[3].y = 0;
+		gSpriteClips[3].w = 480.5;
+		gSpriteClips[3].h = 282;
+	}
+
+	return success;
+}
+
+void close()
+{
+	//освобождаем загруженные кратинки
+	gSpriteSheetTexture.free();
+
+	//удаляем окно	
+	SDL_DestroyRenderer(gRenderer);
+	SDL_DestroyWindow(gWindow);
+	gWindow = NULL;
+	gRenderer = NULL;
+
+	//закрываем бибилотеки
+	IMG_Quit();
+	SDL_Quit();
+}
+
+int main(int argc, char* args[])
+{
+	//загрузка sdl и окна
+	if (!init())
+	{
+		printf("Failed to initialize!\n");
+	}
+	else
+	{
+		//загрузка картинки
+		if (!loadMedia())
+		{
+			printf("Failed to load media!\n");
+		}
+		else
+		{
+			//флаг
+			bool quit = false;
+
+			//обработка событий
+			SDL_Event e;
+
+			//текущий фрейм анимации
+			int frame = 0;
+
+			//пока не выйдем
+			while (!quit)
+			{
+				//очередь событий
+				while (SDL_PollEvent(&e) != 0)
+				{
+					//пользователь нажал выход
+					if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)
+					{
+						quit = true;
+					}
+				}
+
+				//очистка экрана
+				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+				SDL_RenderClear(gRenderer);
+
+				//рендерим текущий фрейм
+				SDL_Rect* currentClip = &gSpriteClips[frame / 4];
+				gSpriteSheetTexture.render((SCREEN_WIDTH - currentClip->w) / 2, (SCREEN_HEIGHT - currentClip->h) / 2, currentClip);
+
+				//обновляем экран
+				SDL_RenderPresent(gRenderer);
+
+				//переходим к следующему фрейму
+				++frame;
+
+				//анимация
+				if (frame / 4 >= WALKING_ANIMATION_FRAMES)
+				{
+					frame = 0;
+				}
+			}
+		}
+	}
+
+	//все освобождаем и закрываем sdl
+	close();
+	return 0;
+}

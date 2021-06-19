@@ -58,7 +58,8 @@ template <class Type> void print_steck(Steck<Type>* point);
 double _getnum();
 int main()
 {
-	system("chcp 65001 & cls");
+	system("cls");
+	setlocale(LC_ALL, "Russian");
 	int action = 0;
 	char _num;
 	while (action != 1 && action != 2)

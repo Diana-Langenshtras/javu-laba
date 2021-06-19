@@ -1,111 +1,87 @@
 #include <iostream>
-#include <cstring>
-#include <algorithm>
-
+#include <cstdlib>
+#include <ctime>
+#define N 10
 using namespace std;
-
-template < typename T > //шаблон функции
-void sort(T& mas, size_t length)
+template <class Type>
+void print_array(Type* arr, int size)
 {
-	double temp;
-	for (int i = 0; i < length; i++)
-		for (int j = length - 1; j > i; j--)
-			if (((mas[j - 1] >= 0) && (mas[j] >= 0) && (mas[j - 1] > mas[j])) || // Два положительных => сортируем по возрастанию
-				((mas[j - 1] < 0) && (mas[j] < 0) && (mas[j - 1] < mas[j])) ||
-				((mas[j - 1] * mas[j] <= 0) && (mas[j - 1] > mas[j])))
+	for (int i = 0; i < size; i++)
+	{
+		std::cout << (double)arr[i] << '\t';
+	}
+	std::cout << '\n';
+}
+template <class Type>
+void generate_array(Type* arr, int size)
+{
+	for (int i = 0; i < size; i++)
+	{
+		arr[i] = rand() % 20000 / 100.0 - 100;
+	}
+}
+template <class Type>
+void Shift(Type* el, int n)
+{
+	int i, flag = 0, counter = 0, indSort;
+	Type forSort;
+	for (; counter < n; counter++)
+	{
+		flag = 0;
+		for (i = counter; i < n; i++) //находим первое отрицательное
+		{
+			if (el[i] < 0)
 			{
-				temp = mas[j - 1];
-				mas[j - 1] = mas[j];
-				mas[j] = temp;
+				forSort = el[i];
+				indSort = i;
+				flag = 1;
+				break;
 			}
-	cout << "Сортировка массива окончена" << endl;
-	system("pause");
-}
-
-void vvodchar(char* mas, size_t length)
-{
-	system("cls");
-	int tmp = 0;
-	for (size_t i = 0; i < length; i++)
-	{
-		cout << "Элемент [" << i << "]: ";
-		cin >> tmp;
-		*(mas + i) = tmp;
+		} if (!flag) break;
+		for (i = indSort + 1; i < n; i++)
+		{
+			if (el[i] < 0 && el[i] > forSort)
+			{
+				indSort = i;
+				forSort = el[i];
+			}
+		}
+		el[indSort] = el[counter];
+		el[counter] = forSort;
 	}
-	cout << endl;
-	cin.clear();
-	while (cin.get() != '\n');
-}
-
-void vvoddouble(double* mas, size_t length)
-{
-	system("cls");
-	for (size_t i = 0; i < length; i++)
+	for (; counter < n; counter++)
 	{
-		cout << "Элемент [" << i << "]: ";
-		cin >> *(mas + i);
+		forSort = el[counter];
+		indSort = counter;
+		for (i = counter + 1; i < n; i++)
+		{
+			if (el[i] < forSort)
+			{
+				indSort = i;
+				forSort = el[i];
+			}
+		}
+		el[indSort] = el[counter];
+		el[counter] = forSort;
 	}
-	cout << endl;
-	cin.clear();
-	while (cin.get() != '\n');
-
 }
-
-void vyvodchar(char* mas, size_t length)
-{
-	system("cls");
-	for (size_t i = 0; i < length; i++)
-	{
-		cout << (int)*(mas + i) << " ";
-	}
-	cout << endl;
-	system("pause");
-}
-
-void vyvoddouble(double* mas, size_t length)
-{
-	system("cls");
-	for (size_t i = 0; i < length; i++)
-	{
-		cout << *(mas + i) << " ";
-	}
-	cout << endl;
-	system("pause");
-}
-
 int main()
 {
+	system("cls");
 	setlocale(LC_ALL, "Russian");
-	int length;
-	double* a;
-	char* c;
-	cout << "Введите кол-во элементов массива" << endl;
-	cin >> length;
-	a = new double[length];
-	c = new char[length];
-	char menu;
-	do {
-		system("cls");
-		cout << "1. Ввод\n";
-		cout << "2. Вывод\n";
-		cout << "3. Сортировка\n";
-		cout << "0. Выход\n";
-		menu = getchar();
-		switch (menu)
-		{
-		case '1':
-		{
-			vvoddouble(a, length);
-			cout << "Следующий массив char" << endl;
-			vvodchar(c, length);
-			break;
-		}
-		case '2': vyvoddouble(a, length); vyvodchar(c, length); break;
-		case '3': sort(a, length); sort(c, length); break;
-		}
-	} while (menu != '0');
-	delete[] a;
-	delete[] c;
-	system("pause");
-	return 0;
+	srand(time(0));
+	double first[N];
+	char second[N];
+	generate_array(first, N);
+	generate_array(second, N);
+	cout << "Исходный массив double:\n";
+	print_array(first, N); cout << '\n';
+	Shift(first, N);
+	cout << "Отсортированный массив double:\n";
+	print_array(first, N); cout << '\n';
+	cout << "Исходный массив char:\n";
+	print_array(second, N); cout << '\n';
+	Shift(second, N);
+	cout << "Отсортированный массив char:\n";
+	print_array(second, N); cout << '\n';
 }

@@ -135,39 +135,37 @@ int main()
 		{
 		case 1: _dsteck->push(_getnum()); break;
 		case 2: if (_dsteck->isEmpty()) {
-			cout << "Стек пуст.\n"; break;
-		} _dsteck->pop(); break;
+			cout << "Стек пуст.\n"; break; } _dsteck->pop(); break;
 		case 3: cin >> _num; _chsteck->push(_num); break;
 		case 4: if (_chsteck->isEmpty()) {
-			cout << "Стек пуст.\n"; break;
-		} _chsteck->pop(); break;
+			cout << "Стек пуст.\n"; break; } _chsteck->pop(); break;
 		}
-		system("pause");
-	}
-	return 0;
-}
-template <class Type> void print_steck(Steck<Type>* point)
-{
-	ListSteck<Type> temp;
-	Type buff;
-	while (!point->isEmpty())
-	{
-		buff = point->pop();
-		cout << buff << " ";
-		temp.push(buff);
-	}
-	cout << "\n";
-	while (!temp.isEmpty()) { point->push(temp.pop()); }
-}
-double _getnum()
-{
-	double value;
-	cin >> value;
-	if (cin.fail())
-	{
-		cin.clear();
-		value = 0;
-	}
-	cin.ignore(32767, '\n');
-	return value;
-}
+			  system("pause");
+		}
+			  return 0;
+		}
+		template <class Type> void print_steck(Steck<Type>* point)
+		{
+			ListSteck<Type> temp;
+			Type buff;
+			while (!point->isEmpty())
+			{
+				buff = point->pop();
+				cout << buff << " ";
+				temp.push(buff);
+			}
+			cout << "\n";
+			while (!temp.isEmpty()) { point->push(temp.pop()); }
+		}
+		double _getnum()
+		{
+			double value;
+			cin >> value;
+			if (cin.fail())
+			{
+				cin.clear();
+				value = 0;
+			}
+			cin.ignore(32767, '\n');
+			return value;
+		}

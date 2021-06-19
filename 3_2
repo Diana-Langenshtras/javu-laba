@@ -1,118 +1,173 @@
 #include <iostream>
-
+#include <conio.h>
 using namespace std;
-
-template <typename T>
-class Stack
+//базовый класс
+template <class Type> class Steck
 {
-private:
-	int top;
-	T* data;
-	int maxlength;
 public:
-	Stack(int n = 100); //максимальное число элементов
-	~Stack();
-	int Empty(void); //проверка на пустоту
-	T Top(void); //неразрушающее чтение
-	T Pop(void); //извлечь из стека
-	int Push(T x); //поместить в стек
-	int full(void);// метод full
+	virtual ~Steck() {}
+	virtual bool isEmpty() = 0; //проверка
+	virtual void push(Type value) = 0; //добавление
+	virtual Type pop() = 0; //извлечение
 };
-
-int main(int argc, char* argv[])
+//вектор
+template <class Type> class VectorSteck : public Steck<Type>
 {
+	int _size;
+	int top;
+	Type* data;
+public:
+	VectorSteck() : _size(100), top(0) //конструктор
+	{
+		data = new Type[_size];
+	}
+	~VectorSteck() { delete[] data; } //деструктор
+	virtual bool isEmpty() //проверка
+	{
+		//cout << "\n[я вектор]\n";
+		return top == 0;
+	}
+	virtual void push(Type value) //добавление
+	{
+		data[top] = value;
+		top++;
+	}
+	virtual Type pop() //извлечение
+	{
+		if (isEmpty()) { return 0; }
+		top--;
+		return data[top];
+	}
+};
+template <class Type> struct NodeSteck
+{
+	Type data;
+	NodeSteck<Type>* next;
+};
+//список
+template <class Type> class ListSteck : public Steck<Type>
+{
+	NodeSteck<Type>* top; //указатель на вершину стека
+public:
+	ListSteck() { top = nullptr; } //конструктор
+	~ListSteck() //деструктор
+	{
+		NodeSteck<Type>* temp;
+		while (top)
+		{
+			temp = top;
+			top = top->next;
+			delete temp;
+		}
+	}
+	virtual bool isEmpty() //проверка
+	{
+		//cout << "\n[я список]\n";
+		return top == nullptr;
+	}
+	virtual void push(Type value) //добавление
+	{
+		NodeSteck<Type>* buff = new (nothrow) NodeSteck<Type>;
+		if (buff == nullptr) return;
+		buff->data = value;
+		buff->next = top;
+		top = buff;
+	}
+	virtual Type pop() //извлечение
+	{
+		if (!isEmpty())
+		{
+			NodeSteck<Type>* delet = top;
+			Type temp = top->data;
+			top = top->next;
+			delet->next = nullptr;
+			delete delet;
+			return temp;
+		}
+		else
+		{
+			return Type();
+		}
+	}
+};
+template <class Type> void print_steck(Steck<Type>* point);
+double _getnum();
+int main()
+{
+	system("cls");
 	setlocale(LC_ALL, "Russian");
-	int length;
-	char selector;
-	cout << "Введите размер стека:" << endl;
-	cin >> length;
-	cout << "Выберите тип данных для стека: " << endl;
-	cout << "1. Стек для double" << endl;
-	cout << "2. Стек для char" << endl;
-	cin >> selector;
-	double inputDouble;
-	char inputChar;
-	switch (selector)
+	int action = 0;
+	char _num;
+	while (action != 1 && action != 2)
 	{
-	case '1':
+		system("cls");
+		cout << "Выберите структуру хранения:\n"
+			"1.Вектор.\n"
+			"2.Список.\n";
+		action = _getnum();
+	}
+	Steck<double>* _dsteck;
+	Steck<char>* _chsteck;
+	if (action == 1)
 	{
-		Stack<double> meme_doubleStack;
-		for (int i = 0; i < length; i++) {
-			cout << "Добавление элемента с индексом " << i << " :";
-			cin >> inputDouble;
-			meme_doubleStack.Push(inputDouble);
-		}
-		for (int i = 0; i < length; i++) {
-			cout << "Верхний элемент стека: " << meme_doubleStack.Top() << endl;
-			cout << "Удаляем верхний элемент " << endl;
-			meme_doubleStack.Pop();
-			if (meme_doubleStack.Empty()) cout << "Стек пуст" << endl;
-		}
-		break;
+		_dsteck = new VectorSteck<double>; _chsteck = new
+			VectorSteck<char>;
 	}
-	case '2':
+	else
 	{
-		Stack<char> meme_charStack;
-		for (int i = 0; i < length; i++) {
-			cout << "Добавление элемента с индексом " << i << " :";
-			cin >> inputChar;
-			meme_charStack.Push(inputChar);
-		}
-		for (int i = 0; i < length; i++) {
-			cout << "Верхний элемент стека: " << meme_charStack.Top() << endl;
-			cout << "Удаляем верхний элемент " << endl;
-			meme_charStack.Pop();
-			if (meme_charStack.Empty()) cout << "Стек пуст" << endl;
-		}
-		break;
+		_dsteck = new ListSteck<double>;
+		_chsteck = new ListSteck<char>;
 	}
+	while (action)
+	{
+		system("cls");
+		cout << "<Тип double>\n";
+		print_steck(_dsteck);
+		cout << "1. Добавить элемент.\n"
+			"2. Удалить элемент.\n\n";
+		print_steck(_chsteck);
+		cout << "<Тип char>\n"
+			"3. Добавить элемент.\n"
+			"4. Удалить элемент.\n\n\n"
+			"0. Выход.\n";
+		action = _getnum();
+		switch (action)
+		{
+		case 1: _dsteck->push(_getnum()); break;
+		case 2: if (_dsteck->isEmpty()) {
+			cout << "Стек пуст.\n"; break;
+		} _dsteck->pop(); break;
+		case 3: cin >> _num; _chsteck->push(_num); break;
+		case 4: if (_chsteck->isEmpty()) {
+			cout << "Стек пуст.\n"; break;
+		} _chsteck->pop(); break;
+		}
+		system("pause");
 	}
-	system("pause");
 	return 0;
 }
-
-template <typename T>
-int Stack<T>::full() 
+template <class Type> void print_steck(Steck<Type>* point)
 {
-	if (top == maxlength - 1) return 0;
-	return 1;
+	ListSteck<Type> temp;
+	Type buff;
+	while (!point->isEmpty())
+	{
+		buff = point->pop();
+		cout << buff << " ";
+		temp.push(buff);
+	}
+	cout << "\n";
+	while (!temp.isEmpty()) { point->push(temp.pop()); }
 }
-
-template <typename T>
-Stack<T>::Stack(int n) : maxlength(n)
+double _getnum()
 {
-	data = new T[maxlength];
-	top = -1;
-}
-
-template <typename T>
-Stack<T>::~Stack()
-{
-	delete[] data;
-}
-
-template <typename T>
-int Stack<T>::Empty()
-{
-	return top < 0;
-}
-
-template <typename T>
-T Stack<T>::Top()
-{
-	return data[top];
-}
-
-template <typename T>
-T Stack<T>::Pop()
-{
-	return data[top--];
-}
-
-template <typename T>
-int Stack<T>::Push(T x)
-{
-	if (top == maxlength - 1) return 0;
-	data[++top] = x; 
-	return 1;
+	double value;
+	cin >> value;
+	if (cin.fail())
+	{
+		cin.clear();
+		value = 0;
+	}
+	cin.ignore(32767, '\n');
+	return value;
 }

@@ -28,13 +28,13 @@ template <class Type> void Shift(array <Type, N>& el)
 		flag = 0;
 		for (i = counter; i < el.size(); i++) //находим первое отрицательное
 		{
-			if (el[i] < 0)
-			{
-				forSort = el[i];
-				indSort = i;
-				flag = 1;
-				break;
-			}
+		if (el[i] < 0)
+		{
+		forSort = el[i];
+		indSort = i;
+		flag = 1;
+		break;
+		}
 		} if (!flag) break;
 		for (i = indSort + 1; i < el.size(); i++)
 		{
@@ -65,7 +65,8 @@ template <class Type> void Shift(array <Type, N>& el)
 }
 int main()
 {
-	system("chcp 65001 & cls");
+	system("cls");
+	setlocale(LC_ALL, "Russian");
 	srand(time(0));
 	array<double, N> first;
 	array<char, N> second;

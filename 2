@@ -11,9 +11,10 @@
 читания « - »(длина строки результата равна длине большей из строк, в случае необходимости, бо -
 лее короткая битовая строка расширяется влево знаковым разрядом) и проверки на больше « > »
 двух двоичных чисел.*/
-
+#include <cstring>
 #include <iostream>
 #include <math.h>
+
 using namespace std;
 
 class MyObject//класс для определения, к какому из трёх классов принадлежит указатель
@@ -22,27 +23,30 @@ public:
 	MyObject()
 	{
 	}
+
 	~MyObject()
 	{
 	}
+
 	int get_type()
 	{
 		return objectType;
 	}
+
 protected:
 	int objectType;//тип объекта
 };
 /// Конец MyObject
 
 /// Начало CharString
-class CharString : public MyObject //класс Строка
+class CharString : public MyObject
 {
 protected:
 	char* stringPtr;//указатель на блок динамической памяти
 	int stringLenght;// длина строки
-	static int countCopyConstructor;//количество вызовов конструкторов копирования
+	static int countCopyConstructor;//количество вызово конструкторов копирования
 public:
-	CharString() //конструктор без параметров
+	CharString()
 	{
 		objectType = 1;
 		stringPtr = 0;
@@ -67,7 +71,8 @@ public:
 		}
 		stringPtr[stringLenght] = '\0';
 	}
-	CharString(char symbol) //конструктор, принимающий 1 символ Си-строки 
+
+	CharString(char symbol) //конструктор, принимающий 1 символ Си-строки
 	{
 		objectType = 1;
 		stringLenght = 2;//длина строки = 2, один под символ и вторая под конец строки \0
@@ -75,25 +80,25 @@ public:
 		stringPtr[0] = symbol;
 		stringPtr[1] = '\0';
 	}
-	~CharString() //деструктор
+	~CharString()
 	{
 		cout << "\t\t\tВызван деструктор класса IdString" << endl;
 		stringPtr = nullptr;
 		stringLenght = NULL;
 	}
 	friend ostream& operator<< (ostream& out, const CharString& str);
-	CharString& operator=(const CharString& str)//перегрузка оператора присваивания
+	CharString& operator=(const CharString& str)//перегрузка оператора сравнения
 	{
 		stringPtr = str.stringPtr;
 		stringLenght = str.stringLenght;
 		return *this;//возвращение указателя на текущий объект
-
 	}
-	int getCharStringLenght() //геттер для длины
+	int getCharStringLenght()
 	{
 		return stringLenght;
 	}
 };
+
 ostream& operator<< (ostream& out, const CharString& str) //перегрузка оператора поточного вывода
 {
 	//посимвольное считывание строки
@@ -108,19 +113,20 @@ ostream& operator<< (ostream& out, const CharString& str) //перегрузка
 /// Конец CharString 
 
 /// Начало BitString
-class BitString : public CharString //класс битовая строка
+class BitString : public CharString
 {
 public:
-	BitString() //устанавливаем тип класса
+	BitString()
 	{
 		objectType = 3;
 	}
-	~BitString() //деструктор
-	{ 
+	~BitString()
+	{
 		cout << "\t\t\tВызван деструктор класса IdString" << endl;
 		stringPtr = nullptr;
 		stringLenght = NULL;
 	}
+
 	BitString(const BitString& copyIdStr) : CharString(copyIdStr) //конструктор копирования
 	{
 		objectType = 3;
@@ -138,6 +144,7 @@ public:
 	{
 		objectType = 3;
 	}
+
 	int StrToInt()
 	{
 		int ipos = stringLenght, Res = 0;
@@ -178,6 +185,7 @@ public:
 			Res *= -1;
 		return Res;
 	}
+
 	bool CheckSign() 
 	{
 		if (this->stringPtr[0] == '1')
@@ -187,7 +195,8 @@ public:
 			return true;
 		}
 	}
-	bool operator> (BitString secondBitStr) //перегрузка оператора сравнения >  
+
+	bool operator> (BitString secondBitStr)//перегрузка оператора сравнения >
 	{
 		if ((this->stringPtr[0]) > (secondBitStr.stringPtr[0]))
 		{
@@ -219,75 +228,231 @@ public:
 				return true;
 			}
 		}
-
 		if (((this->stringPtr[0]) == (secondBitStr.stringPtr[0])) && ((this->stringLenght) == (secondBitStr.stringLenght)))
 			for (int i = 0; i < (secondBitStr.stringLenght); i++) {
-
 				if (this->stringPtr[i] > secondBitStr.stringPtr[i])
 					return true;
 				if (this->stringPtr[i] < secondBitStr.stringPtr[i])
 					return false;
 			}
 	}
-	BitString operator- (BitString& secondBitStr)//перегрузка оператора вычитания
+
+	void operator- (BitString& secondBitStr)//перегрузка оператора вычитания
 	{
-		BitString result_temp_bit_string;//использование конструктора копирования для получения значений
-		char* end;
-		int a = 1;
-		if (this->stringPtr[0] == '1') {
-			this->stringPtr[0] = '0';
-			a = -1;
+		char input1[100] = { 0 };
+		char input2[100] = { 0 };
+		char output[101] = { 0 };
+		for (int i = 0; i < (this->stringLenght); i++) {
+			input1[i] = (this->stringPtr[i]);
+			cout << "выполняется " << i << " раз" << endl;
 		}
-		long fullNamber = strtol(this->stringPtr, &end, 2);
-		fullNamber = fullNamber * a;
-
-		int b = 1;
-		if (secondBitStr.stringPtr[0] == '1') {
-			secondBitStr.stringPtr[0] = '0';
-			b = -1;
+		for (int i = 0; i < (secondBitStr.stringLenght); i++) {
+			input2[i] = (secondBitStr.stringPtr[i]);
+			cout << "выполняется " << i << " раз" << endl;
 		}
-		long fullNamber2 = strtol(secondBitStr.stringPtr, &end, 2);
-		fullNamber2 = fullNamber2 * b;
-
-		if ((fullNamber - fullNamber2) < 0)
-			a = -1;
-		else a = 1;
-
-
-		int bin = 0, j;
-		int c = (a * (fullNamber - fullNamber2));
-		for (j = 0; c > 0; j++)
+		int exit;
+		int n1, n2, n;
+		do
 		{
-			bin += (c % 2) * pow(10.0, j);
-			c /= 2;
-		}
+			exit = 1;
+			n1 = -1;
+			while (input1[++n1] != '\0') {
+				if (input1[n1] != '0' && input1[n1] != '1') 
+				{
+					input1[0] = '\0';
+					exit = 0;
+					break;
 
-		int temp = bin, count = 0;
-		while (temp)
+				}
+			};
+		} while (!exit);
+		do 
 		{
-			count++;
-			temp /= 10;
-
-		}
-		result_temp_bit_string.stringPtr = new char[count + 1];
-		if (a == -1)
-			result_temp_bit_string.stringPtr[0] = '1';
-		else result_temp_bit_string.stringPtr[0] = '0';
-		int i = count;
-		while (bin)
+			exit = 1;
+			n2 = -1;
+			while (input2[++n2] != '\0') 
+			{
+				if (input2[n2] != '0' && input2[n2] != '1') 
+				{
+					input2[0] = '\0';
+					exit = 0;
+					break;
+				}
+			};
+		} while (!exit);
+		int b = 0;
+		if (n1 < n2)
+			b = 2;
+		else if (n1 > n2)
+			b = 1;
+		else 
 		{
-			result_temp_bit_string.stringPtr[i] = (bin % 10) + 48;
-			bin /= 10;
-			i--;
+			for (int i = 0; i < n1; ++i)
+				if (input1[i] < input2[i]) 
+				{
+					b = 2;
+					break;
+				}
+				else if (input1[i] > input2[i]) 
+				{
+					b = 1;
+					break;
+				}
 		}
-		result_temp_bit_string.stringLenght = count + 1;
-		for (int j = 0; j < result_temp_bit_string.stringLenght; j++)
-			cout << result_temp_bit_string.stringPtr[j];
+		if (b == 0) 
+		{
+			output[0] = 0;
+			output[1] = '\0';
+		}
+		else if (b == 1) 
+		{
+			char buf[100];
+			for (int i = 0; i < n2; ++i)
+				buf[i] = input2[i];
+			for (int i = 0; i < (n1 - n2); ++i)
+				input2[i] = '0';
+			for (int i = (n1 - n2); i < n1; ++i) 
+			{
+				input2[i] = buf[i - (n1 - n2)];
+			}
 
-		//cout << (fullNamber - fullNamber2) << endl;
+			char invert[100];
+			char p = '0';//
+			for (int i = 0; i < n1; ++i)
+				if (p == '0')
+				{
+					if (input2[n1 - 1 - i] == '0')
+						invert[i] = input1[n1 - 1 - i];
+					else if (input1[n1 - 1 - i] == '1')
+						invert[i] = '0';
+					else 
+					{
+						invert[i] = '1';
+						p = '1';
+					}
+				}
+				else 
+				{
+					if (input1[n1 - 1 - i] == '0')
+					{
+						if (input2[n1 - 1 - i] == '0')
+						{
+							invert[i] = '1';
+							p = '1';
+						}
+						else 
+						{
+							invert[i] = '0';
+							p = '1';
+						}
+					}
+					else 
+					{
+						if (input2[n1 - 1 - i] == '0') 
+						{
+							invert[i] = '0';
+							p = '0';
+						}
+						else 
+						{
+							invert[i] = '1';
+							p = '1';
+						}
+					}
+				}
+			if (p == '1') 
+			{
+				invert[n1] = '1';
+				n = n1 + 1;
+			}
+			else
+				n = n1;
+			for (int i = n - 1; i >= 0; --i)
+				if (invert[i] == '0')
+					--n;
+				else
+					break;
+			for (int i = 0; i < n; ++i)
+				output[i] = invert[n - 1 - i];
+			output[n] = '\0';
+		}
 
-		return result_temp_bit_string;//возвращаем третий объект класса - результат, который переводится обратно в строку
-	}
+		else 
+		{//b == 2;
+			char buf[100];
+			for (int i = 0; i < n1; ++i)
+				buf[i] = input1[i];
+			for (int i = 0; i < (n2 - n1); ++i)
+				input1[i] = '0';
+			for (int i = (n2 - n1); i < n1; ++i) 
+			{
+				input1[i] = buf[i - (n2 - n1)];
+			}
+			char invert[100];
+			char p = '0';
+			for (int i = 0; i < n1; ++i)
+				if (p == '0') 
+				{
+					if (input1[n1 - 1 - i] == '0')
+						invert[i] = input2[n1 - 1 - i];
+					else if (input2[n1 - 1 - i] == '1')
+						invert[i] = '0';
+					else 
+					{
+						invert[i] = '1';
+						p = '1';
+					}
+				}
+				else {
+					if (input2[n1 - 1 - i] == '0') 
+					{
+						if (input1[n1 - 1 - i] == '0') 
+						{
+							invert[i] = '1';
+							p = '1';
+						}
+						else 
+						{
+							invert[i] = '0';
+							p = '1';
+						}
+					}
+					else 
+					{
+						if (input1[n1 - 1 - i] == '0') 
+						{
+							invert[i] = '0';
+							p = '0';
+						}
+						else
+						{
+							invert[i] = '1';
+							p = '1';
+						}
+					}
+				}
+			if (p == '1')
+			{
+				invert[n1] = '1';
+				n = n1 + 1;
+			}
+			else
+				n = n1;
+			for (int i = n - 1; i >= 0; --i)
+				if (invert[i] == '0')
+					--n;
+				else
+					break;
+			output[0] = '-';
+			for (int i = 1; i < n + 1; ++i)
+				output[i] = invert[n - i];
+			++n;
+			output[n] = '\0';
+}
+cout << output << endl;
+system("pause");
+}
+
 private:
 	bool checkString_Bit(const char* stringPtr) //проверка строки на соответствие Bit-формату
 	{
@@ -304,20 +469,15 @@ private:
 /// Конец BitString
 
 /// Начало IdString
-class IdString : public CharString //класс строка-идентификатор
-{
+class IdString : public CharString {
 private:
 	bool checkIdStringForCorrectSymbol(const char* stringPtr) //проверка строки на соответствие идентификатору
 	{
-
-		if (stringPtr[0] == '_' || (stringPtr[0] >= 'a' && stringPtr[0] <=
-			'z'))//первый символ идентификатора должен состоять из "_" или строчкой буквы
+		if (stringPtr[0] == '_' || (stringPtr[0] >= 'a' && stringPtr[0] <= 'z'))//первый символ идентификатора должен состоять из "_" или строчкой буквы
 		{
-			for (int i = 1; i < stringLenght; i++) {
-				if (!(stringPtr[i] >= 'A' && (stringPtr[i] <= 'Z' || stringPtr[i] >= 'a') && stringPtr[i] <= 'z' &&
-					stringPtr[0] == 95 && (
-						stringPtr[i] >= '0' &&
-						stringPtr[i] <= '9')))//остальные буквы - заглавные и строчные буквы "_", цифры
+			for (int i = 1; i < stringLenght; i++) 
+			{
+				if (!(stringPtr[i] >= 'A' && (stringPtr[i] <= 'Z' || stringPtr[i] >= 'a') && stringPtr[i] <= 'z' && stringPtr[0] == 95 && (	stringPtr[i] >= '0' && stringPtr[i] <= '9')))//остальные буквы - заглавные и строчные буквы "_", цифры
 				{
 					break;
 				}
@@ -326,54 +486,51 @@ private:
 		}
 		return false;
 	}
-
 public:
 	IdString() : CharString() //наследование конструкторов других классов
 	{
 		objectType = 2;
 	}
-
 	IdString(const IdString& copyIdStr) : CharString(copyIdStr) //конструктор копирования
 	{
 		objectType = 2;
 	}
-
 	IdString(const char* charIdStringPtr) : CharString(charIdStringPtr) //конструктор, принимающий Си-строку
 	{
 		objectType = 2;
-		if (!checkIdStringForCorrectSymbol(charIdStringPtr)) {
+		if (!checkIdStringForCorrectSymbol(charIdStringPtr)) 
+		{
 			stringLenght = 0;
 			stringPtr = 0;
 		}
 	}
-
 	IdString(char symbolIdString) : CharString(symbolIdString) //конструктор, принимающий 1 символ Си-строки
 	{
 		objectType = 2;
 	}
-
 	~IdString()
 	{
 		cout << "\t\t\tВызван деструктор класса IdString" << endl;
 		stringPtr = nullptr;
 		stringLenght = NULL;
 	}
-	
-	int lastOccurrence(char find) //: поиск последнего вхождения символа в строку
+	int lastOccurrence(char find) 
 	{
 		int lastJ = -1;
-		for (int j = stringLenght - 1; j >= 0; j--) {
-			if (stringPtr[j] == find) {
+		for (int j = stringLenght - 1; j >= 0; j--)
+		{
+			if (stringPtr[j] == find) 
+			{
 				lastJ = j + 1;
 				break;
 			}
 		}
 		return lastJ;
 	}
-
 	IdString operator>(const IdString& secondIdStr) 
 	{
-		if (this->stringLenght > secondIdStr.stringLenght) {
+		if (this->stringLenght > secondIdStr.stringLenght) 
+		{
 			return (*this);
 		}
 		else
@@ -384,7 +541,8 @@ public:
 
 	IdString operator<(const IdString& secondIdStr) 
 	{
-		if (this->stringLenght < secondIdStr.stringLenght) {
+		if (this->stringLenght < secondIdStr.stringLenght) 
+		{
 			return (*this);
 		}
 		else
@@ -393,33 +551,34 @@ public:
 		}
 	}
 
-	IdString operator-(const IdString& secondIdStr)//перегрузка оператора вычитания
+	/*IdString operator-(const IdString& secondIdStr)//перегрузка оператора вычитания
 	{
 		IdString resultIdStr;
 		char* bufferString = new char[stringLenght];
 		int sumStringLenght = 0;
-		for (int i = 0, k = 0, p = 0; i < stringLenght; i++) {
-			for (int j = 0; j < secondIdStr.stringLenght; j++) {
+		for (int i = 0, k = 0, p = 0; i < stringLenght; i++)
+		{
+			for (int j = 0; j < secondIdStr.stringLenght; j++) 
+			{
 				if (stringPtr[i] == secondIdStr.stringPtr[j])
 					k++;
 			}
-			if (!k) {
+			if (!k) 
+			{
 				bufferString[p] = stringPtr[i];
 				p++;
 				sumStringLenght++;
 			}
 			k = 0;
 		}
-
 		resultIdStr.stringLenght = sumStringLenght;
 		resultIdStr.stringPtr = bufferString;
 		return resultIdStr;//присваивание длинны строки и указатель на новую строку объекту результата и возврат этого объекта
-	}
+	}*/
 };
+
 /// Конец IdString
-
-int CharString::countCopyConstructor = 0; //определение статического счётчика
-
+int CharString::countCopyConstructor = 0;//определение статического счётчика
 int main()
 {
 	setlocale(LC_ALL, "Russian");
@@ -427,15 +586,12 @@ int main()
 	int countOfArrayPointers = 0, countOfObject = 0, currentObjectNumber = 0;
 	CharString** charStringPtrArray = nullptr;
 	CharString tempCharStr;
-
 	while (countOfArrayPointers <= 0)
 	{
 		cout << "Введите число указателей на класс CharString" << endl;
 		cin >> countOfArrayPointers;
-
 	}
 	charStringPtrArray = new CharString * [countOfArrayPointers];//динамическое создание массива указателей
-
 	while (countOfObject < countOfArrayPointers)//вводим все значения в массив
 	{
 		cout << "Выберите создаваемый объекта класса из списка: " << endl;
@@ -445,7 +601,7 @@ int main()
 		cin >> classObjectSelector;
 		cout << "Введите значение строки:" << endl;
 		cin >> inputStringToClass;
-		switch (classObjectSelector)//в зависимости от пункта меню  создаём новый объект класса
+		switch (classObjectSelector)//в зависимости от пункта меню создаём новый объект класса
 		{
 		case '1':
 		{
@@ -486,9 +642,8 @@ int main()
 			currentObjectNumber--;
 			if (currentObjectNumber < 0)
 			{
-				currentObjectNumber = countOfArrayPointers - 1; //если мы выходим за рамки массива, присваиваем последнее значение, дабы не выйти за рамки массива
+				currentObjectNumber = countOfArrayPointers - 1;//если мы выходим за рамки массива, присваиваем последнее значение, дабы не выйти за рамки массива
 			}
-
 			break;
 		}
 		case '2': // если мы выходим за рамки массива, присваиваем 0, дабы не выйти за рамки массива.
@@ -502,7 +657,7 @@ int main()
 		}
 		case '3':
 			system("cls");
-			switch (charStringPtrArray[currentObjectNumber]->get_type()) //определяем тип объекта и демонстрируем методы класса 
+			switch (charStringPtrArray[currentObjectNumber]->get_type())//определяем тип объекта и демонстрируем методы класса
 			{
 			case 1:
 			{
@@ -530,8 +685,10 @@ int main()
 				} while (classMethodSelector != 'q');
 				break;
 			}
-			case 2: {
-				do {
+			case 2: 
+			{
+				do 
+				{
 					system("cls");
 					cout << "Демонстрация методов класса <<Строка-Идентефикатор>>" << endl;
 					IdString* idString = static_cast<IdString*>(charStringPtrArray[currentObjectNumber]);//приводим указатель на базовый класс к классу IdString
@@ -541,14 +698,17 @@ int main()
 					cout << "3. Сравнение строк операции '>'" << endl;
 					cout << "q. Выйти" << endl;
 					cin >> classMethodSelector;
-					switch (classMethodSelector) {
-					case '1': {
+					switch (classMethodSelector) 
+					{
+					case '1': 
+					{
 						cout << "Введите новое значение строки:" << endl;
 						cin >> inputStringToClass;
 						*idString = inputStringToClass;
 						break;
 					}
-					case '2': {
+					case '2': 
+					{
 						char find;
 						cout << "Введите символ для поиска последнего вхождения: " << endl;
 						cin >> find;
@@ -557,7 +717,8 @@ int main()
 						getchar();
 						break;
 					}
-					case '3': {
+					case '3': 
+					{
 						cout << "Введите строку для Сравнения" << endl;
 						cin >> inputStringToClass;
 						IdString idTempString(inputStringToClass);
@@ -598,7 +759,6 @@ int main()
 					}
 					case '2':
 					{
-
 						cout << "Получение информации о знаке числа: " << endl;
 						if ((*BitStr).CheckSign())
 							cout << "Значение строки положительное" << endl;
@@ -612,7 +772,7 @@ int main()
 						cin >> inputStringToClass;
 						BitString BitTempString(inputStringToClass);
 						BitString BitString(*BitStr);
-						*BitStr = BitString - BitTempString;
+						BitString - BitTempString;
 						getchar(); getchar();
 						break;
 					}
@@ -633,22 +793,22 @@ int main()
 						cout << "Данный пункт меню отсутствует в списке, повторите попытку" << endl;
 						break;
 					}
-				} while (classMethodSelector != 'q');
-				break;
-			}
-			default: {
-				break;
-			}
-
-			}
-		case 'q':
-			break;
-		default:
-			cout << "Данный пункт меню отсутствует в списке, повторите попытку" << endl;
-			break;
-		}
-		system("pause");
-	} while (menuSelector != 'q');
-	//автоматически определять, что перед нами за объект класса
-	return 0;
+} while (classMethodSelector != 'q');
+break;
+}
+default: 
+{
+	break;
+}
+}
+case 'q':
+	break;
+default:
+	cout << "Данный пункт меню отсутствует в списке, повторите попытку" << endl;
+	break;
+}
+system("pause");
+} while (menuSelector != 'q');
+//автоматически определять, что перед нами за объект класса
+return 0;
 }

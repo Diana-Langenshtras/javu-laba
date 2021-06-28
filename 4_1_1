@@ -1,0 +1,50 @@
+
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <vector>
+#include <algorithm>// std alg
+#define N 10
+using namespace std;
+template <class T>
+void print(const T& a)
+{
+	cout << a << "\t";
+}
+template <class T>
+T rnd()
+{
+	return (rand() % 20000 / 100.0 - 100);
+}
+template <class T>
+bool not_negative(const T& a)
+{
+	return a >= 0;
+}
+int main()
+{
+	system("cls");
+	setlocale(LC_ALL, "Russian");
+	srand(time(0));
+	cout << "Для double" << endl;
+	vector<double> vec(10);
+	generate(vec.begin(), vec.end(), rnd<double>); //пристаивается каждому элементу от первого до последнего значения из функции генерации
+	cout << "Исходный массив" << endl;
+	for_each(vec.begin(), vec.end(), print<double>);
+	sort(vec.begin(), vec.end()); //сортировка элементов в порядке возрастания
+	auto notNegative = find_if(vec.begin(), vec.end(), not_negative<double>);// ищется число, с начала до конца. пока не найдет неотрицательное, как нашелось - останавливается и возвращает итератор на эту позицию
+	reverse(vec.begin(), notNegative);
+	cout << "\nПолученный массив" << endl;
+	for_each(vec.begin(), vec.end(), print<double>);
+	cout << "\nДля char" << endl; 
+	vector<char> vec_char(10); 
+	generate(vec_char.begin(), vec_char.end(), rnd<char>); //пристаивается каждому элементу от первого до последнего значения из функции генерации
+	cout << "Исходный массив" << endl; 
+	for_each(vec_char.begin(), vec_char.end(), print<char>);
+	sort(vec_char.begin(), vec_char.end()); //сортировка элементов в порядке возрастания
+	auto notNegative2 = find_if(vec_char.begin(), vec_char.end(), not_negative<char>);// ищется число, с начала до конца. пока не найдет неотрицательное, как нашелось - останавливается и возвращает итератор на эту позицию
+	reverse(vec_char.begin(), notNegative2);
+	cout << "\nПолученный массив" << endl;
+	for_each(vec_char.begin(), vec_char.end(), print<char>);
+	return 0;
+}

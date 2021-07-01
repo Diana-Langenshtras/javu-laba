@@ -69,6 +69,7 @@ public:
     }
     ~CharString()
     {
+        if (stringPtr != nullptr)
         delete[] stringPtr;
         stringLenght = 0;
         countdestruct++;
@@ -78,13 +79,14 @@ public:
     CharString& operator=(const CharString& str)//перегрузка оператора сравнения
     {
         if (str.stringPtr == nullptr) {
-            delete[] stringPtr;
+            if (stringPtr != nullptr) delete[] stringPtr;
             stringPtr = nullptr;
             stringLenght = 0;
             return *this;
         }
-        if (this != &str) {
-            delete[] stringPtr;
+        if (this != &str)
+        {
+            if (stringPtr != nullptr) delete[] stringPtr;
             stringPtr = new char[str.stringLenght + 1];
             strcpy(stringPtr, str.stringPtr);
             stringLenght = str.stringLenght;
@@ -121,7 +123,7 @@ public:
     ~BitString()
     {
         cout << "\t\t\tВызван деструктор класса BitString" << endl;
-        delete[] stringPtr;
+        if (stringPtr != nullptr) delete[] stringPtr;
         stringLenght = 0;
     }
     BitString(const BitString& copyIdStr) : CharString(copyIdStr) //конструктор копирования
@@ -151,7 +153,7 @@ public:
             return true;
         }
     }
-  
+
      bool operator> (BitString secondBitStr)//перегрузка оператора сравнения >
     {
         if ((this->stringPtr[0]) > (secondBitStr.stringPtr[0]))

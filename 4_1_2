@@ -1,0 +1,58 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <vector>
+#include <algorithm>// std alg
+
+using namespace std;
+template <class T>
+void print(const T& a)
+{
+	cout << a << "\t";
+}
+
+template <class T>
+bool not_negative(const T& a)
+{
+	return a >= 0;
+}
+
+template<class T>
+void mysort(unsigned int n)
+{
+	int i;
+	vector<T> vec(n);
+	for (i = 0; i < n; i++)
+	{
+		cout << "Элемент [" << i + 1 << "]" << endl;
+		cin >> vec[i];
+	}
+	cout << "\nИсходный массив" << endl;
+	for_each(vec.begin(), vec.end(), print<T>);
+	cout << endl;
+	sort(vec.begin(), vec.end()); //сортировка элементов в порядке возрастания
+	auto notNegative = find_if(vec.begin(), vec.end(), not_negative<T>);// ищется число, с начала до конца. пока не найдет неотрицательное, как нашелось - останавливается и возвращает итератор на эту позицию
+	reverse(vec.begin(), notNegative);
+	cout << "\nПолученный массив" << endl;
+	for_each(vec.begin(), vec.end(), print<T>);
+}
+
+
+
+int main()
+{
+	unsigned int n, i;
+	double buffer;
+	double* v;
+	system("cls");
+	setlocale(LC_ALL, "Russian");
+	cout << "Введите количество элементов для массива double" << endl;
+	cin >> n;
+	cout << "Для double" << endl;
+	mysort<double>(n);
+	cout << endl << "Введите количество элементов для массива char" << endl;
+	cin >> n;
+	cout << "Для char" << endl;
+	mysort<char>(n);
+	return 0;
+}

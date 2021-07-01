@@ -39,15 +39,14 @@ public:
         stringLenght = 0;
     }
     CharString(const CharString& copyStr) //конструктор копирования
-    {
-        objectType = 1;
-        delete[] stringPtr;
+	{
+		objectType = 1;
         stringPtr = new char[copyStr.stringLenght + 1];
-        strcpy(stringPtr, copyStr.stringPtr);
-        stringLenght = copyStr.stringLenght;
-        countCopyConstructor++;
-        cout << "Количество вызовов конструктора копирования: " << countCopyConstructor << endl;
-    }
+		stringPtr = copyStr.stringPtr;
+		stringLenght = copyStr.stringLenght;
+		countCopyConstructor++;
+		cout << "Количество вызовов конструктора копирования: " << countCopyConstructor << endl;
+	}
     CharString(const char* charStringPtr) //конструктор, принимающий Си-строку
     {
         objectType = 1;
@@ -152,32 +151,7 @@ public:
             return true;
         }
     }
-  /*  bool operator> (BitString secondBitStr)//перегрузка оператора сравнения >
-    {
-system("pause");
-        if ((this->stringPtr[0]) > (secondBitStr.stringPtr[0]))
-        {
-            return false;
-        }
-        system("pause");
-        if ((this->stringPtr[0]) < (secondBitStr.stringPtr[0]))
-        {
-            return true;
-        }
-        system("pause");
-        //убираем знак
-        if (this->stringPtr[0] == '1')
-        {
-            this->stringPtr[0] = '0';
-        }
-system("pause");
-        if (secondBitStr.stringPtr[0] == '1')
-        {
-            secondBitStr.stringPtr[0] = '0';
-        }
-        system("pause");
-        if (isSmaller(this->stringPtr, secondBitStr.stringPtr)) return false; else return true;
-    }*/
+  
      bool operator> (BitString secondBitStr)//перегрузка оператора сравнения >
     {
         if ((this->stringPtr[0]) > (secondBitStr.stringPtr[0]))
@@ -401,7 +375,6 @@ char *strRev(char* str)
 private:
     bool checkString_Bit(const char* stringPtr) //проверка строки на соответствие Bit-формату
     {
-        if (stringPtr[0] == '1' && stringPtr[1] == '0' && stringPtr[2]) return false; //чтобы после знака не было незначащих нулей
         for (int j = 0; j < stringLenght; j++)
         {
             if (!(stringPtr[j] >= '0' && stringPtr[j] <= '1'))
@@ -420,8 +393,7 @@ class IdString : public CharString
 private:
     bool checkIdStringForCorrectSymbol(const char* stringPtr) //проверка строки на соответствие идентификатору
     {
-        if (stringPtr[0] == '_' || (stringPtr[0] >= 'a' && stringPtr[0] <=
-            'z'))//первый символ идентификатора должен состоять из "_" или строчкой буквы
+        if (stringPtr[0] == '_' || (stringPtr[0] >= 'a' && stringPtr[0] <= 'z'))//первый символ идентификатора должен состоять из "_" или строчкой буквы
         {
             for (int i = 1; i < stringLenght; i++) {
                 if (!(stringPtr[i] >= 'A' && (stringPtr[i] <= 'Z' || stringPtr[i] >= 'a') && stringPtr[i] <= 'z' &&
@@ -691,14 +663,11 @@ int main()
                     {
                         cout << "Введите строку в битовом формате для сравнения с заданной: " << endl;
                         cin >> inputStringToClass;
-                        system("pause");
                         BitString BitTempString(inputStringToClass);
-                        system("pause");
                         BitString BitString(*BitStr);
-                        system("pause");
                         if (BitString > BitTempString)
-                            cout << "Начальная строка больше" << endl;
-                        else cout << "Вторая строка больше" << endl;
+                            cout << endl << "Начальная строка больше" << endl;
+                        else cout << endl << "Вторая строка больше" << endl;
                         getchar(); getchar();
                     }
                     case 'q':
